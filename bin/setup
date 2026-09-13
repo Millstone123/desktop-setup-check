@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+app_name=${DESKTOP_TARGET_APP:-$(sed -n 's/^[[:space:]]*"application"[[:space:]]*:[[:space:]]*"\([^"]*\)".*$/\1/p' config/settings.json | head -1)}
+case "$app_name" in
+  ''|*[!A-Za-z0-9._-]*) echo 'Invalid configured application name' >&2; exit 2 ;;
+esac
+
+if [ "${1:-}" = "--check-only" ]; then
+  printf 'Configured application: %s\n' "$app_name"
+  exit 0
+fi
+
+exec /usr/bin/open -a "$app_name"

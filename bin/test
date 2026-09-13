@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+tmp=${TMPDIR:-/tmp}/desktop-setup-check.$$
+trap 'rm -f "$tmp"' EXIT HUP INT TERM
+sed -n 's/.*"application"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' config/settings.json > "$tmp"
+read -r configured < "$tmp"
+test "$configured" = "Readiness" || exit 1
+DESKTOP_TARGET_APP=Diagnostic ./bin/setup --check-only > "$tmp.expected"
+sed 's/Readiness/Diagnostic/' "$tmp.expected" > "$tmp.actual"
+cmp -s "$tmp.expected" "$tmp.actual" || exit 2
+printf 'ok\n'
