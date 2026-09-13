@@ -7,16 +7,17 @@ interactive testing.
 
 | Command | Purpose |
 | --- | --- |
-| `make doctor` | Report configuration and the effective application without opening it. |
-| `make test` | Run dependency-free configuration tests. |
-| `make check` | Run the tests and print the effective application. |
+| `make doctor` | Verify configuration without displaying the host application name. |
+| `make test` | Run dependency-free configuration and privacy tests. |
+| `make check` | Run the tests and the preflight check. |
 | `make setup` | Ask macOS Launch Services to open the effective desktop application. |
 
 ## Configuration
 
-The application comes from `config/settings.json`. `DESKTOP_TARGET_APP` takes
-precedence when the desktop environment supplies one, which keeps the same
-project usable across hosts with different readiness applications.
+The application comes from `config/settings.json`. A host may instead supply
+`DESKTOP_TARGET_APP`; the override keeps one project usable across desktops.
+Doctor and check report whether the project setting or host override is active,
+but deliberately omit the application name so local desktop details stay private.
 
 ## Workflow
 

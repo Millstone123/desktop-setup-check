@@ -1,20 +1,25 @@
 #!/bin/sh
 set -eu
 tmp=${TMPDIR:-/tmp}/desktop-setup-check.$$
-trap 'rm -f "$tmp" "$tmp.expected" "$tmp.actual"' EXIT HUP INT TERM
+trap 'rm -f "$tmp" "$tmp.default" "$tmp.override"' EXIT HUP INT TERM
 
 sed -n 's/.*"application"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' config/settings.json > "$tmp"
 read -r configured < "$tmp"
 test "$configured" = "Readiness" || exit 1
 
-DESKTOP_TARGET_APP=Diagnostic ./bin/setup --check-only > "$tmp.expected"
-sed 's/Readiness/Diagnostic/' "$tmp.expected" > "$tmp.actual"
-cmp -s "$tmp.expected" "$tmp.actual" || exit 2
+env -u DESKTOP_TARGET_APP ./bin/setup --check-only > "$tmp.default"
+grep -q '^Configuration: valid$' "$tmp.default" || exit 2
+grep -q '^Application source: project settings$' "$tmp.default" || exit 2
+grep -q '^Setup action: open application$' "$tmp.default" || exit 2
 
-DESKTOP_TARGET_APP=Diagnostic ./bin/doctor > "$tmp.expected"
-grep -q '^Configuration: valid$' "$tmp.expected" || exit 3
-grep -q '^Configured application: Diagnostic$' "$tmp.expected" || exit 3
-grep -q '^Environment override: set$' "$tmp.expected" || exit 3
-grep -q '^Test command: make test$' "$tmp.expected" || exit 3
-grep -q '^Validation command: make check$' "$tmp.expected" || exit 3
+DESKTOP_TARGET_APP=Diagnostic ./bin/setup --check-only > "$tmp.override"
+grep -q '^Configuration: valid$' "$tmp.override" || exit 3
+grep -q '^Application source: environment override$' "$tmp.override" || exit 3
+if grep -q 'Diagnostic' "$tmp.override"; then
+  echo 'Preflight leaked the host application name' >&2
+  exit 4
+fi
+
+DESKTOP_TARGET_APP=Diagnostic ./bin/doctor > "$tmp.override"
+grep -q '^Preflight: ready$' "$tmp.override" || exit 5
 printf 'ok\n'

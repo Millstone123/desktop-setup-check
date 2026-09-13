@@ -1,18 +1,5 @@
 #!/bin/sh
 set -eu
 
-app_name=${DESKTOP_TARGET_APP:-$(sed -n 's/^[[:space:]]*"application"[[:space:]]*:[[:space:]]*"\([^"]*\)".*$/\1/p' config/settings.json | head -1)}
-case "$app_name" in
-  ''|*[!A-Za-z0-9._-]*) echo 'Invalid configured application name' >&2; exit 2 ;;
-esac
-
-printf 'Configuration: valid\n'
-printf 'Configured application: %s\n' "$app_name"
-printf 'Environment override: '
-if [ -n "${DESKTOP_TARGET_APP:-}" ]; then
-  printf 'set\n'
-else
-  printf 'unset\n'
-fi
-printf 'Test command: make test\n'
-printf 'Validation command: make check\n'
+./bin/setup --check-only
+printf 'Preflight: ready\n'

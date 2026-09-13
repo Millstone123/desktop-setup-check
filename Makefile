@@ -9,7 +9,7 @@ test:
 	@./bin/test
 
 check: test
-	@./bin/setup --check-only
+	@./bin/doctor
 
 doctor:
 	@./bin/doctor

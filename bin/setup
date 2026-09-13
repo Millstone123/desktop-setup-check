@@ -7,7 +7,14 @@ case "$app_name" in
 esac
 
 if [ "${1:-}" = "--check-only" ]; then
-  printf 'Configured application: %s\n' "$app_name"
+  if [ -n "${DESKTOP_TARGET_APP:-}" ]; then
+    source='environment override'
+  else
+    source='project settings'
+  fi
+  printf 'Configuration: valid\n'
+  printf 'Application source: %s\n' "$source"
+  printf 'Setup action: open application\n'
   exit 0
 fi
 
