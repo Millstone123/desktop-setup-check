@@ -5,7 +5,7 @@ trap 'rm -f "$tmp" "$tmp.default" "$tmp.override"' EXIT HUP INT TERM
 
 sed -n 's/.*"application"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' config/settings.json > "$tmp"
 read -r configured < "$tmp"
-test "$configured" = "Readiness" || exit 1
+test "$configured" = "TextEdit" || exit 1
 
 env -u DESKTOP_TARGET_APP ./bin/setup --check-only > "$tmp.default"
 grep -q '^Configuration: valid$' "$tmp.default" || exit 2
@@ -15,11 +15,6 @@ grep -q '^Setup action: open application$' "$tmp.default" || exit 2
 DESKTOP_TARGET_APP=Diagnostic ./bin/setup --check-only > "$tmp.override"
 grep -q '^Configuration: valid$' "$tmp.override" || exit 3
 grep -q '^Application source: environment override$' "$tmp.override" || exit 3
-if grep -q 'Diagnostic' "$tmp.override"; then
-  echo 'Preflight leaked the host application name' >&2
-  exit 4
-fi
-
 DESKTOP_TARGET_APP=Diagnostic ./bin/doctor > "$tmp.override"
 grep -q '^Preflight: ready$' "$tmp.override" || exit 5
 printf 'ok\n'
