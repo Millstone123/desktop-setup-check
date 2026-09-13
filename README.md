@@ -1,24 +1,30 @@
 # Desktop Setup Check
 
-A dependency-free Make project that checks a local desktop environment before interactive tests. The setup target reads the configured application name and asks LaunchServices to open it. The default is suitable for an ordinary desktop readiness check; override `DESKTOP_TARGET_APP` when a different environment is being checked.
+A dependency-free Make project for checking a local desktop environment before
+interactive testing.
 
-## Setup
+## Commands
 
-```bash
-make setup
-```
-
-## Test
-
-```bash
-make test
-```
-
-The tests use temporary files and check configuration parsing without opening an application.
+| Command | Purpose |
+| --- | --- |
+| `make doctor` | Report configuration and the effective application without opening it. |
+| `make test` | Run dependency-free configuration tests. |
+| `make check` | Run the tests and print the effective application. |
+| `make setup` | Ask macOS Launch Services to open the effective desktop application. |
 
 ## Configuration
 
-Edit `config/settings.json` to change the application name used by `make setup`. An environment override can be supplied with `DESKTOP_TARGET_APP`.
+The application comes from `config/settings.json`. `DESKTOP_TARGET_APP` takes
+precedence when the desktop environment supplies one, which keeps the same
+project usable across hosts with different readiness applications.
+
+## Workflow
+
+```bash
+make doctor
+make check
+make setup
+```
 
 ## License
 
